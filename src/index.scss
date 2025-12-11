@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+    --background: 213.33 31.03 5.69;
+    --foreground: 214.29 31.82 91.37;
+    --card: 215 22.22 10.59;
+    --muted: 215 20.22 65.1;
+    --border: 213.91 21.5 20.98;
+    --orange: 32.85 93.25 53.53;
+    --green: 160.12 84.08 39.41;
+    --red: 0 84.24 60.2;
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scrollbar-gutter: stable;
+  }
+
+  html,
+  body {
+    @apply bg-dark font-sans text-white antialiased;
+  }
+}
+
+input:-webkit-autofill {
+  background-color: inherit !important;
+  color: white !important;
+  transition: all 9999s;
+  -webkit-text-fill-color: white !important;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0e13;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a3441;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/*
+ * Figures must never widen the card they sit in.
+ *
+ * Every amount on screen is monospace, and some of them are long: eight decimals of bitcoin, a
+ * STRAT balance with separators, a raw wei figure in the admin panel. Inside a flex row a text
+ * node refuses to shrink below its longest unbreakable run, so one long number pushes the row
+ * wider than its column and the whole page scrolls sideways on a phone.
+ *
+ * `anywhere` is the one value that also lowers the min-content width, which is what lets the flex
+ * item shrink at all. `break-word` looks the same but does not, so it would not fix this.
+ */
+.font-mono,
+[class*='font-mono'] {
+  overflow-wrap: anywhere;
+}
+
+/* Nothing should be able to scroll the page sideways. A card that overflows is a bug to fix at
+   the card, and this keeps it from becoming a broken page while it waits. */
+html,
+body {
+  overflow-x: hidden;
+}
