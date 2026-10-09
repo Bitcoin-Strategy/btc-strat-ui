@@ -1,0 +1,10 @@
+{
+  "name": "worker-name",
+  "compatibility_date": "2025-12-11",
+  "assets": {
+    "directory": "./dist",
+    // The app routes on the client (react-router BrowserRouter), so a hard reload on /vesting
+    // asks the server for a file that does not exist. Serve index.html for those instead of 404.
+    "not_found_handling": "single-page-application"
+  }
+}
