@@ -38,3 +38,7 @@ npm run sync:abi -- <contracts-repo>                                  # ABIs
 ## Deployment
 
 `npm run build` outputs a static bundle to `dist/`, served as a single-page app (see `wrangler.jsonc`).
+
+## License
+
+[MIT](LICENSE)
