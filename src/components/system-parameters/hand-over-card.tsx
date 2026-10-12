@@ -32,8 +32,15 @@ export function HandOverCard({
     }
     return 'until its own expiry';
   })();
-  const { finalize, isPending, isConfirming, isSuccess, error, canFinalize } =
-    useFinalizeGenesis();
+  const {
+    finalize,
+    step,
+    isPending,
+    isConfirming,
+    isSuccess,
+    error,
+    canFinalize,
+  } = useFinalizeGenesis();
 
   const { data: redemptionDelay } = useReadContract({
     chainId: PROTOCOL_CHAIN.id,
@@ -54,7 +61,7 @@ export function HandOverCard({
   const label = (() => {
     if (isSuccess) return 'Handed over';
     if (isConfirming) return 'Confirming…';
-    if (isPending) return 'Waiting for the wallet…';
+    if (isPending) return `${step ?? 'Waiting for the wallet'}…`;
     return 'Finalize Genesis';
   })();
 
@@ -72,6 +79,12 @@ export function HandOverCard({
       </div>
 
       <ul className="text-muted mb-4 space-y-1.5 text-sm">
+        <li>
+          First it seals Genesis, one transaction each: the last bond series is
+          cut to what has sold and closed, and opening new series and
+          premium-sale routing move to the{' '}
+          <span className="text-white">upgrade track</span>.
+        </li>
         <li>
           Your admin address is <span className="text-white">zeroed</span> in
           the same transaction. Nothing restores it.
