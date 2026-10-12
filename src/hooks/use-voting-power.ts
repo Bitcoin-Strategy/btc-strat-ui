@@ -1,5 +1,11 @@
+import { useState } from 'react';
 import { zeroAddress } from 'viem';
-import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
+import {
+  useAccount,
+  usePublicClient,
+  useReadContracts,
+  useWriteContract,
+} from 'wagmi';
 
 import { useEnsureProtocolChain } from './use-ensure-chain';
 
@@ -7,13 +13,16 @@ import { STAKING_ABI } from '../lib/abi/staking';
 import { STRAT_ABI } from '../lib/abi/strat';
 import { ADDRESSES } from '../lib/addresses';
 import { PROTOCOL_CHAIN } from '../lib/chains';
+import { notifyTransaction } from '../lib/notifications';
 import { wadToNumber } from '../lib/units';
 
 /** Delegates both the wallet balance and the stake escrow, so weight never stays with an old delegate. */
 export const useVotingPower = () => {
   const { address } = useAccount();
   const ensureChain = useEnsureProtocolChain();
-  const { writeContractAsync, isPending: isDelegating } = useWriteContract();
+  const client = usePublicClient({ chainId: PROTOCOL_CHAIN.id });
+  const { writeContractAsync } = useWriteContract();
+  const [isDelegating, setIsDelegating] = useState(false);
 
   const base = {
     chainId: PROTOCOL_CHAIN.id,
@@ -63,31 +72,46 @@ export const useVotingPower = () => {
     !!address &&
     delegate.toLowerCase() === address.toLowerCase();
 
-  // Two calls when the staker has an escrow.
+  // Two calls when the staker has an escrow. Reads refresh only once both are mined.
   const delegateTo = async (to?: `0x${string}`) => {
-    if (!address) return;
-    await ensureChain();
+    if (!address || !client) return;
     const target = to ?? address;
-
-    await writeContractAsync({
-      chainId: PROTOCOL_CHAIN.id,
-      address: ADDRESSES.STRAT,
-      abi: STRAT_ABI,
-      functionName: 'delegate',
-      args: [target],
-    });
-
-    if (hasEscrow) {
-      await writeContractAsync({
+    setIsDelegating(true);
+    try {
+      await ensureChain();
+      const hash = await writeContractAsync({
         chainId: PROTOCOL_CHAIN.id,
-        address: ADDRESSES.STAKING,
-        abi: STAKING_ABI,
-        functionName: 'delegateStake',
+        address: ADDRESSES.STRAT,
+        abi: STRAT_ABI,
+        functionName: 'delegate',
         args: [target],
       });
-    }
+      const mined = async (h: `0x${string}`) => {
+        const receipt = await client.waitForTransactionReceipt({ hash: h });
+        if (receipt.status !== 'success')
+          throw new Error('Transaction reverted');
+      };
+      await mined(hash);
 
-    await refetch();
+      let last = hash;
+      if (hasEscrow) {
+        last = await writeContractAsync({
+          chainId: PROTOCOL_CHAIN.id,
+          address: ADDRESSES.STAKING,
+          abi: STAKING_ABI,
+          functionName: 'delegateStake',
+          args: [target],
+        });
+        await mined(last);
+      }
+
+      await refetch();
+      notifyTransaction.success('vote', last, 'Voting power delegated');
+    } catch (err) {
+      notifyTransaction.error('vote', err);
+    } finally {
+      setIsDelegating(false);
+    }
   };
 
   return {
