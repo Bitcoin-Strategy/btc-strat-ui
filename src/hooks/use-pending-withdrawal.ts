@@ -32,9 +32,7 @@ export const usePendingWithdrawal = () => {
   const readyAt = Number(pending?.readyAt ?? 0n);
 
   const hasPending = amount > 0n;
-  const secondsLeft = hasPending
-    ? Math.max(0, readyAt - Math.floor(now / 1000))
-    : 0;
+  const secondsLeft = hasPending ? Math.max(0, readyAt - now) : 0;
 
   return {
     amount,
