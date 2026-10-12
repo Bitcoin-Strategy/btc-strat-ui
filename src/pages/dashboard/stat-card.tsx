@@ -12,7 +12,8 @@ import { formatter } from '../../lib';
 interface StatCardProps {
   title: string;
   value: string;
-  subValue?: string;
+  /** One line, or several stacked. */
+  subValue?: string | string[];
   icon: ElementType;
   trend?: number;
   infoTooltip?: string;
@@ -26,6 +27,9 @@ export function StatCard({
   trend,
   infoTooltip,
 }: StatCardProps) {
+  let subLines: string[] = [];
+  if (Array.isArray(subValue)) subLines = subValue;
+  else if (subValue) subLines = [subValue];
   return (
     <div className="border-border bg-card hover:border-orange/30 group cursor-default rounded-xl border p-5 transition-all">
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -71,11 +75,14 @@ export function StatCard({
       <div className="break-all font-mono text-xl font-bold text-white sm:text-2xl">
         {value}
       </div>
-      {subValue && (
-        <div className="text-muted mt-1 break-all text-xs sm:text-sm">
-          {subValue}
+      {subLines.map((line) => (
+        <div
+          key={line}
+          className="text-muted mt-1 break-all text-xs sm:text-sm"
+        >
+          {line}
         </div>
-      )}
+      ))}
     </div>
   );
 }

@@ -26,10 +26,12 @@ export function Dashboard() {
     navUsdPerStrat,
     marketUsdPerStrat,
     premiumPct,
+    mnav,
     oracleReady,
     backingSupply,
   } = useProtocolDashboard();
   const stratMarketPrice = oracleReady ? marketUsdPerStrat : null;
+  const mnavShown = oracleReady ? mnav : null;
 
   const { nextEpochAtMs } = useEpochCountdown();
 
@@ -83,23 +85,38 @@ export function Dashboard() {
           icon={Bitcoin}
         />
         <StatCard
-          title="NAV per $STRAT"
-          value={navUsdPerStrat === null ? '—' : `${navUsdPerStrat.toFixed(6)}`}
-          subValue={`${navBtcPerStrat.toFixed(16)} BTC`}
+          title="NAV (BTC)"
+          value={`${(navBtcPerStrat * 1e8).toFixed(2)} sats / STRAT`}
+          subValue={`${navBtcPerStrat.toFixed(10)} BTC`}
           icon={ShieldCheck}
+          infoTooltip={`How much bitcoin backs each Activated STRAT: the Treasury's ${smartFormatter(treasuryBtc)} BTC over ${smartFormatter(backingSupply)} STRAT actually sold, read straight from the contracts. Tokens the protocol still holds are not counted, because no bitcoin came in against them. It rises as bonds and premium sales add bitcoin, and it is the floor every bond series must price above. It is not a yield: nothing is distributed on it.`}
+        />
+        <StatCard
+          title="NAV (USD)"
+          value={
+            navUsdPerStrat === null
+              ? '—'
+              : `$${navUsdPerStrat.toFixed(6)} / STRAT`
+          }
+          icon={ArrowUpRight}
+          infoTooltip="The current dollar value of that exact same bitcoin backing. It moves with the price of bitcoin; the backing itself does not."
         />
         <StatCard
           title="Market Price"
-          value={`$${smartFormatter(stratMarketPrice)}`}
-          subValue={`Premium: ${smartFormatter(premiumPct)}%`}
+          value={
+            stratMarketPrice === null
+              ? '—'
+              : `$${smartFormatter(stratMarketPrice)} / STRAT`
+          }
+          subValue={
+            mnavShown === null || premiumPct === null
+              ? undefined
+              : [
+                  `${mnavShown.toFixed(2)}× NAV`,
+                  `${premiumPct >= 0 ? '+' : ''}${premiumPct.toFixed(2)}% ${premiumPct >= 0 ? 'premium' : 'discount'}`,
+                ]
+          }
           icon={Activity}
-        />
-        <StatCard
-          title="Backing per STRAT"
-          value={`${navBtcPerStrat.toFixed(10)} BTC`}
-          subValue={`${smartFormatter(treasuryBtc)} BTC over ${smartFormatter(backingSupply)} STRAT`}
-          icon={ArrowUpRight}
-          infoTooltip="The Treasury's bitcoin divided by the STRAT that has actually been sold, read straight from the contracts. Tokens the protocol still holds are not counted, because no bitcoin came in against them. It rises as bonds and premium sales add bitcoin, and it is the floor every bond series must price above. It is not a yield: nothing is distributed on it."
         />
       </div>
 

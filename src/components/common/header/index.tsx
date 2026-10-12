@@ -40,12 +40,12 @@ export function Header({ onMenu }: { onMenu: () => void }) {
         <div className="hidden items-center gap-2 sm:flex">
           <span className="text-muted">$STRAT Price:</span>
           <span className="font-mono font-medium text-white">
-            {oracleReady ? `${smartFormatter(marketUsdPerStrat)}` : '—'}
+            {oracleReady ? `$${smartFormatter(marketUsdPerStrat)}` : '—'}
           </span>
         </div>
         <div className="bg-border hidden h-4 w-px md:block"></div>
         <div className="hidden items-center gap-2 md:flex">
-          <span className="text-muted">NAV:</span>
+          <span className="text-muted">NAV (USD):</span>
           <span className="text-green font-mono font-medium">
             ${smartFormatter(navUsdPerStrat)}
           </span>

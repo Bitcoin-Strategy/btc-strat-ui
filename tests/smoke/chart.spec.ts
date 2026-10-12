@@ -12,7 +12,13 @@ test('chart labels, colours and tooltip agree about NAV and market price', async
   await expect(
     page.getByText('NAV (USD / STRAT)', { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText('NAV (BTC)', { exact: true })).toHaveCount(0);
+  const chartCard = page
+    .getByRole('heading', { name: 'Backing and market price' })
+    .locator('..')
+    .locator('..');
+  await expect(chartCard.getByText('NAV (BTC)', { exact: true })).toHaveCount(
+    0,
+  );
   const market = page.locator('.recharts-area-dot[stroke="#10B981"]');
   const nav = page.locator('.recharts-area-dot[stroke="#F7931A"]');
   await expect(market).toHaveCount(3);
