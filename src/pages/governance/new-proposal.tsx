@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { encodeFunctionData } from 'viem';
 
 import { Button, Card, Input } from '../../components/ui';
+import { useActionTracks } from '../../hooks/use-action-tracks';
 import { useProposeAction } from '../../hooks/use-propose';
 import { TRACKS, formatDuration, trackFor } from '../../lib/governance';
 import {
@@ -61,7 +62,9 @@ export function NewProposal({ onCreated }: { onCreated?: () => void }) {
 
   const isRaw = actionKey === 'raw';
   const action = PROPOSAL_ACTIONS.find((a) => a.key === actionKey);
-  const track = isRaw ? 'upgrade' : (action?.track ?? 'params');
+  const tracks = useActionTracks();
+  const actionTrack = action ? tracks[action.key] : 'params';
+  const track = isRaw ? 'upgrade' : actionTrack;
 
   const {
     propose,
@@ -187,11 +190,13 @@ export function NewProposal({ onCreated }: { onCreated?: () => void }) {
       >
         {TRACKS.map((t) => (
           <optgroup key={t.key} label={`${t.label} track`}>
-            {PROPOSAL_ACTIONS.filter((a) => a.track === t.key).map((a) => (
-              <option key={a.key} value={a.key}>
-                {a.label}
-              </option>
-            ))}
+            {PROPOSAL_ACTIONS.filter((a) => tracks[a.key] === t.key).map(
+              (a) => (
+                <option key={a.key} value={a.key}>
+                  {a.label}
+                </option>
+              ),
+            )}
           </optgroup>
         ))}
         <optgroup label="Anything else">

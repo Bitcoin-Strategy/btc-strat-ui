@@ -9,7 +9,7 @@ import { TREASURY_ABI } from './abi/treasury';
 import { ADDRESSES } from './addresses';
 import type { TrackKey } from './governance';
 
-/** Each action fixes its track: the authority refuses restricted selectors from the parameter track. */
+/** Each action names its default track; `useActionTracks` moves it to the upgrade track once the authority restricts its selector. */
 
 export type FieldKind =
   | 'bps'
