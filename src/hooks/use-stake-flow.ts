@@ -41,6 +41,7 @@ export const useStakeFlow = ({
     isConfirming: isApprovalConfirming,
     isSuccess: isApprovalSuccess,
     error: approvalError,
+    allowance,
     refetchAllowance,
   } = useApproveToken({
     tokenAddress: stratTokenAddress as `0x${string}` | undefined,
@@ -61,7 +62,7 @@ export const useStakeFlow = ({
     amount,
     tokenAddress: stratTokenAddress as `0x${string}` | undefined,
     decimals: 18,
-    enabled: isEnabled && (!needsApproval || isApprovalSuccess),
+    enabled: isEnabled && !needsApproval,
   });
 
   const approvalNotified = useRef(false);
@@ -107,8 +108,14 @@ export const useStakeFlow = ({
     stakeNotified.current = false;
   }, [amount, resetStake]);
 
+  // Until the allowance is read the next step is unknown, and a mined approval counts only once the
+  // refetched allowance covers the amount; either gap would otherwise send an unapproved stake.
+  const allowanceKnown = allowance !== undefined;
+  const isSyncingAllowance = isApprovalSuccess && needsApproval;
+
   const execute = () => {
-    if (needsApproval && !isApprovalSuccess) {
+    if (!allowanceKnown || isSyncingAllowance) return;
+    if (needsApproval) {
       void approve();
     } else {
       void stake();
@@ -116,25 +123,32 @@ export const useStakeFlow = ({
   };
 
   const isProcessing =
-    isApproving || isApprovalConfirming || isStaking || isStakeConfirming;
+    isApproving ||
+    isApprovalConfirming ||
+    isSyncingAllowance ||
+    isStaking ||
+    isStakeConfirming;
 
   const canExecute =
     !!amount &&
     parseFloat(amount) > 0 &&
     !isProcessing &&
     isCorrectNetwork &&
-    !!stratTokenAddress;
+    !!stratTokenAddress &&
+    allowanceKnown;
 
   const getButtonText = () => {
     if (isProcessing) {
-      if (isApprovalConfirming) return 'Confirming Approval...';
+      if (isApprovalConfirming || isSyncingAllowance)
+        return 'Confirming Approval...';
       if (isApproving) return 'Approving...';
       if (isStakeConfirming) return 'Confirming Stake...';
       if (isStaking) return 'Staking...';
       return 'Processing...';
     }
     if (isStakeSuccess) return 'Staked Successfully!';
-    if (needsApproval && !isApprovalSuccess) return 'Approve & Stake';
+    if (isEnabled && !allowanceKnown) return 'Checking allowance...';
+    if (needsApproval) return 'Approve & Stake';
     return 'Stake';
   };
 
@@ -143,7 +157,7 @@ export const useStakeFlow = ({
     isProcessing,
     canExecute,
     buttonText: getButtonText(),
-    needsApproval: needsApproval && !isApprovalSuccess,
+    needsApproval,
     error: approvalError || stakeError,
     isSuccess: isStakeSuccess,
     isCorrectNetwork,
