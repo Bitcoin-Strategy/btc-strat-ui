@@ -15,6 +15,7 @@ import { useAdminMode } from '../../../hooks/use-admin-mode';
 import { useProtocolChain } from '../../../hooks/use-protocol-chain';
 import { PAGE } from '../../../lib/constants';
 import { cn } from '../../../lib/utils';
+import { SocialLinks } from '../social-links';
 
 const HEADER_ITEMS = [
   { label: 'Dashboard', path: PAGE.DASHBOARD, icon: LayoutDashboard },
@@ -129,7 +130,8 @@ export function Navigation({
           ))}
         </nav>
 
-        <div className="border-border/50 border-t p-4">
+        <div className="border-border/50 space-y-3 border-t p-4">
+          <SocialLinks variant="panel" />
           <NetworkStatus />
         </div>
       </aside>

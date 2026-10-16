@@ -7,6 +7,7 @@ import { WalletOptions } from './wallet-options';
 
 import { useProtocolDashboard } from '../../../hooks/use-protocol-dashboard';
 import { smartFormatter } from '../../../lib';
+import { SocialLinks } from '../social-links';
 
 /** Below `sm` only the BTC price is shown. */
 export function Header({ onMenu }: { onMenu: () => void }) {
@@ -60,17 +61,18 @@ export function Header({ onMenu }: { onMenu: () => void }) {
         </div>
       </div>
 
-      {isConnected ? (
-        <>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-            <NotificationBell />
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+        <SocialLinks className="hidden md:flex" />
 
+        {isConnected ? (
+          <>
+            <NotificationBell />
             <Account />
-          </div>
-        </>
-      ) : (
-        <WalletOptions />
-      )}
+          </>
+        ) : (
+          <WalletOptions />
+        )}
+      </div>
     </header>
   );
 }

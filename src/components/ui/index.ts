@@ -1,4 +1,5 @@
 export * from './badge';
+export * from './brand-icons';
 export * from './button';
 export * from './card';
 export * from './dark-box';

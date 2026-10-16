@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { BrowserRouter, Link, Route, Routes } from 'react-router';
+import { BrowserRouter, Route, Routes } from 'react-router';
 
 import {
   CcaBanner,
@@ -7,8 +7,9 @@ import {
   ErrorBoundary,
   Header,
   Navigation,
+  SocialLinks,
 } from './components/common';
-import { LINKS, PAGE } from './lib/constants';
+import { PAGE } from './lib/constants';
 import {
   Bonding,
   Dashboard,
@@ -90,26 +91,7 @@ function App() {
           </div>
 
           <footer className="border-border text-muted border-t p-6 text-center text-xs">
-            <div className="mb-2 flex justify-center gap-6">
-              <Link
-                to={LINKS.TWITTER}
-                className="transition-colors hover:text-white"
-              >
-                Twitter
-              </Link>
-              <Link
-                to={LINKS.DISCORD}
-                className="transition-colors hover:text-white"
-              >
-                Discord
-              </Link>
-              <Link
-                to={LINKS.GITHUB}
-                className="transition-colors hover:text-white"
-              >
-                Github
-              </Link>
-            </div>
+            <SocialLinks variant="text" className="mb-2" />
             <p>© 2025 Bitcoin Strategy. All rights reserved.</p>
           </footer>
         </main>
