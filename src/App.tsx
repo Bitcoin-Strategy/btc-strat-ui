@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { BrowserRouter, Link, Route, Routes } from 'react-router';
 
 import {
@@ -20,11 +20,13 @@ import {
 
 function App() {
   const [navOpen, setNavOpen] = useState(false);
+  // Stable identity: Navigation closes itself whenever this callback changes.
+  const closeNav = useCallback(() => setNavOpen(false), []);
 
   return (
     <BrowserRouter>
       <div className="bg-dark text-text selection:bg-orange/30 min-h-screen font-sans">
-        <Navigation open={navOpen} onClose={() => setNavOpen(false)} />
+        <Navigation open={navOpen} onClose={closeNav} />
 
         <main className="flex min-h-dvh flex-col lg:pl-64">
           <Header onMenu={() => setNavOpen(true)} />
